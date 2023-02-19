@@ -25,6 +25,7 @@ with open("./config/period.config", "r") as f:
     # Assign day and time variables from lines
     _day = lines[0][0].lower()
     _time = lines[1][0]
+    _hours = lines[2][0]
 
 # Define source and destination folders
 source = "C:\\Users\\PC\\Music\\download"
@@ -40,17 +41,21 @@ def backup():
     count = 0
     # Loop through files in source folder
     for file in os.listdir(source):
-        # Get full path of file
-        file_path = os.path.join(source, file)
-        # Check if file is newer than existing backup or does not exist in backup
-        if not os.path.exists(os.path.join(destination, file)) or \
-           os.stat(file_path).st_mtime > os.stat(os.path.join(destination, file)).st_mtime:
-            # Copy file to destination folder
-            shutil.copy2(file_path, destination)
-            print(f"Copied {file} to {destination}")
-            # Increment counter and log file name
-            count += 1 
-            logging.info(f"Copied {file} to {destination}")
+        # Create file name of the recently recorded file 
+        recent_recorded_file = time.strftime('rec_%Y%m%d-%H0000_1.mp3')
+        # Skip the most recent file being recorded in the LOGGER MACHINE
+        if file != recent_recorded_file:
+            # Get full path of file
+            file_path = os.path.join(source, file)
+            # Check if file is newer than existing backup or does not exist in backup
+            if not os.path.exists(os.path.join(destination, file)) or \
+            os.stat(file_path).st_mtime > os.stat(os.path.join(destination, file)).st_mtime:
+                # Copy file to destination folder
+                shutil.copy2(file_path, destination)
+                print(f"Copied {file} to {destination}")
+                # Increment counter and log file name
+                count += 1 
+                logging.info(f"Copied {file} to {destination}")
     # Print and log number of files copied and date of backup 
     print(f"Backup completed. Copied {count} files on {time.strftime('%Y-%m-%d %H:%M:%S')}")
     logging.info(f"Backup completed. Copied {count} files on {time.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -62,21 +67,25 @@ root = tk.Tk()
 # Set the title and geometry of the window 
 root.title("Backup Program")
 root.geometry("700x450")
-# Set the background color to black 
-root.config(bg="black")
+# Set the background color to #2d2d2d 
+root.config(bg="#2d2d2d")
 # Create a futuristic font for the GUI elements 
 font = ("Arial", 20, "bold")
 # Create a label to display the program name 
-title_label = tk.Label(root, text="Backup Program", font=font, fg="green", bg="black",)
+title_label = tk.Label(root, text="Backup Program", font=font, fg="purple", bg="#2d2d2d",)
 # Place the label at the center of the window 
 title_label.place(relx=0.5, rely=0.1, anchor=tk.CENTER)
 # Create a button to start the backup function manually 
-backup_button = tk.Button(root, text="Force Backup", font=("Arial", 16, "bold"), fg="white", bg="green", command=backup)
+backup_button = tk.Button(root, text="Force Backup", font=("Arial", 16, "bold"), fg="white", bg="#2d2d2d", command=backup)
 # Place the button below the label with some padding 
 backup_button.place(relx=0.5, rely=0.3, anchor=tk.CENTER)
 # Create a label to display the configured backup period
-period_status = tk.Label(root,text=f'Backup period: {_day}@{_time}',font=("Courier", 8),bg='black',fg='white')
-period_status.place(relx=.05, rely=.2)
+if _hours == '0':
+    period_status = tk.Label(root,text=f'Backup period: {_day}@{_time}',font=("Courier", 8),bg='#2d2d2d',fg='white')
+    period_status.place(relx=.05, rely=.2)
+else:
+    period_status = tk.Label(root,text=f'Backup period: {_hours} hours',font=("Courier", 8),bg='#2d2d2d',fg='white')
+    period_status.place(relx=.05, rely=.2)
 
 def change_source():
     global source    
@@ -98,28 +107,28 @@ def change_destination():
         
 
 # Create another button to change source folder  
-source_button = tk.Button(root,text='Change Source',font=("Arial", 14, "bold"),bg='blue',fg='white',command=change_source)  
+source_button = tk.Button(root,text='Change Source',font=("Arial", 12, "bold"),bg='blue',fg='white',command=change_source)  
 source_button.place(relx=.15,rely=.40)  
 
 # Create another button to change destination folder  
-destination_button = tk.Button(root,text='Change Destination',font=("Arial", 14, "bold"),bg='blue',fg='white',command=change_destination)  
+destination_button = tk.Button(root,text='Change Destination',font=("Arial", 12, "bold"),bg='blue',fg='white',command=change_destination)  
 destination_button.place(relx=.60,rely=.40)  
 
 # Create another label to display current source folder  
-source_label = tk.Label(root,text=f'>> {source}',font=("Courier", 8),bg='black',fg='white')  
+source_label = tk.Label(root,text=f'>> {source}',font=("Courier", 8),bg='#2d2d2d',fg='white')  
 source_label.place(relx=.10,rely=.50)  
 
 # Create another label to display current destination folder  
-destination_label = tk.Label(root,text=f'>> {destination}',font=("Courier", 8),bg='black',fg='white')
+destination_label = tk.Label(root,text=f'>> {destination}',font=("Courier", 8),bg='#2d2d2d',fg='white')
 destination_label.place(relx=.55, rely=.50)
 
 
 # Create another label to display if program is running in auto mode or off  
-status_label = tk.Label(root, text="", font=("Arial", 14, "bold"), fg="blue", bg="black")
+status_label = tk.Label(root, text="", font=("Arial", 12, "bold"), fg="white", bg="#2d2d2d")
 # Place the label below the button with some padding 
 status_label.place(relx=0.5, rely=0.6, anchor=tk.CENTER)
 # Create another label to display the result message after backup 
-result_label = tk.Label(root, text="", font=("Arial", 14, "bold"), fg="green", bg="black")
+result_label = tk.Label(root, text="", font=("Arial", 14, "bold"), fg="yellow", bg="#2d2d2d")
 # Place the label below status label with some padding 
 result_label.place(relx=0.5, rely=0.7, anchor=tk.CENTER)
 
@@ -139,7 +148,7 @@ terminate_button = tk.Button(root,text='Terminate Program',font=("Arial", 14, "b
 terminate_button.place(relx=0.5, rely=0.85, anchor=tk.CENTER)
 
 # Create a label to display details of the developer
-about_label = tk.Label(root,text=f'Created by: Snr Elton \nhttps://github.com/XCrypto22',font=("Courier", 7),bg='black',fg='white')
+about_label = tk.Label(root,text=f'Created by: Snr Elton \nhttps://github.com/XCrypto22',font=("Courier", 7),bg='#2d2d2d',fg='white')
 about_label.place(relx=.75, rely=.92)
 
 def update_status():
@@ -198,7 +207,10 @@ def switch(day):
 
 
 # Call the switch function with configured day
-switch(_day)
+if _hours == '0':
+    switch(_day)
+else:
+    schedule.every(int(_hours)).hours.do(backup)
 
 # Run scheduled tasks in a loop (this will also run in background)
 def run_scheduled_tasks():
